@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siren Project｜現貨目錄</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #fdfaf5; --text: #5d5245; --accent: #d4a373; --white: #ffffff; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        
+        header { padding: 60px 20px 30px; text-align: center; }
+        /* 1. 這裡改標題字體與大小 */
+        h1 { font-family: 'Noto Serif TC', serif; letter-spacing: 8px; font-size: 2rem; margin: 0; color: #4a4a4a; }
+        
+        .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding: 10px; }
+        .filter-btn { background: white; border: 1px solid var(--accent); padding: 6px 18px; border-radius: 20px; cursor: pointer; color: var(--accent); white-space: nowrap; transition: 0.3s; }
+        .filter-btn.active { background: var(--accent); color: white; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; width: 90%; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid #eee; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        .img-box { width: 100%; height: 280px; overflow: hidden; cursor: zoom-in; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .info { padding: 20px; text-align: center; }
+        .name { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; font-weight: 700; margin: 8px 0; }
+        .price { color: #8b5e3c; font-size: 1.1rem; letter-spacing: 1px; }
+        
+        /* LINE 按鈕樣式 */
+        .order-btn { 
+            display: inline-block; background: #06C755; color: white; text-decoration: none; 
+            padding: 10px 20px; border-radius: 30px; margin-top: 15px; font-size: 0.9rem;
+            transition: 0.3s; font-weight: bold;
+        }
+        .order-btn:hover { background: #05a346; }
+
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); z-index: 999; justify-content: center; align-items: center; cursor: zoom-out; }
+        #modal img { max-width: 90%; max-height: 85vh; border-radius: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr 1fr; gap: 12px; } .img-box { height: 180px; } h1 { font-size: 1.5rem; letter-spacing: 4px; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>HuHuShop IP類現貨</h1>
+    <div style="width:40px; height:1px; background:var(--accent); margin:20px auto;"></div>
+</header>
+
+<div class="filter-container" id="filter-box"></div>
+<div class="grid" id="main-grid">讀取中...</div>
+<div id="modal" onclick="this.style.display='none'"><img id="modalImg" src=""></div>
+
+<script>
+    // 你的 CSV 連結
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXKTmwIFtgknvKwknIWLbaEeRZUNG7_Qz8CHIz19zunRM_BqVKS5K31vowb2wOEjuwCWk57rIcBn-P/pub?output=csv';
+    // 這裡填入你的 LINE 官方帳號 ID (記得要有 @)
+    const lineID = '@514pfcah'; 
+
+    async function loadData() {
+        try {
+            // 加入時間戳記避免延遲
+            const resp = await fetch(csvUrl + '&t=' + Date.now());
+            const text = await resp.text();
+            const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
+            
+            const items = rows.slice(1).map(r => {
+                const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return {
+                    name: c[0]?.replace(/"/g, ''),
+                    cat: c[1]?.replace(/"/g, '') || '一般',
+                    price: c[2]?.replace(/"/g, ''),
+                    stock: parseInt(c[3]) || 0,
+                    img: c[4]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300'
+                };
+            }).filter(i => i.name);
+
+            window.itemsData = items;
+            render('全部');
+            makeFilters();
+        } catch (e) {
+            document.getElementById('main-grid').innerHTML = "連線中，請稍候...";
+        }
+    }
+
+    function render(f) {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+        const list = f === '全部' ? itemsData : itemsData.filter(i => i.cat === f);
+        list.forEach(i => {
+            // 生成 LINE 預填訊息
+            const lineMsg = encodeURIComponent(`你好！我想詢問商品：${i.name}`);
+            const lineLink = `https://line.me/R/oaMessage/${lineID}/?${lineMsg}`;
+
+            grid.innerHTML += `
+                <div class="card">
+                    <div class="img-box" onclick="zoom('${i.img}')"><img src="${i.img}" loading="lazy"></div>
+                    <div class="info">
+                        <div style="font-size:0.7rem; color:var(--accent); letter-spacing:1px;">${i.cat}</div>
+                        <div class="name">${i.name}</div>
+                        <div class="price">NT$ ${i.price}</div>
+                        <div style="font-size:0.8rem; margin:8px 0; opacity:0.6;">現貨：${i.stock}</div>
+                        <a href="${lineLink}" target="_blank" class="order-btn">💬 聯繫加單</a>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function makeFilters() {
+        const cats = ['全部', ...new Set(itemsData.map(i => i.cat))];
+        const box = document.getElementById('filter-box');
+        box.innerHTML = '';
+        cats.forEach(c => {
+            const b = document.createElement('button');
+            b.className = 'filter-btn';
+            b.innerText = c;
+            b.onclick = (e) => {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                render(c);
+            };
+            box.appendChild(b);
+        });
+        if(box.firstChild) box.firstChild.classList.add('active');
+    }
+
+    function zoom(s) {
+        document.getElementById('modalImg').src = s;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    loadData();
+</script>
+</body>
+</html>
