@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>質感選物｜現貨目錄</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&family=Noto+Sans+TC:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #fdfaf5; --text: #5d5245; --accent: #d4a373; --white: #ffffff; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        header { padding: 50px 20px; text-align: center; }
+        h1 { font-family: 'Noto Serif TC', serif; letter-spacing: 3px; font-size: 1.8rem; margin: 0; }
+        .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding: 10px; }
+        .filter-btn { background: white; border: 1px solid var(--accent); padding: 6px 18px; border-radius: 20px; cursor: pointer; color: var(--accent); white-space: nowrap; }
+        .filter-btn.active { background: var(--accent); color: white; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; width: 90%; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
+        .card:hover { transform: translateY(-5px); }
+        .img-box { width: 100%; height: 250px; overflow: hidden; cursor: zoom-in; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .info { padding: 15px; text-align: center; }
+        .name { font-weight: 500; margin: 5px 0; }
+        .price { color: #8b5e3c; font-size: 1.1rem; }
+        .stock { font-size: 0.8rem; margin-top: 8px; opacity: 0.7; }
+        .out { color: #e29578; font-weight: bold; }
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.95); z-index: 999; justify-content: center; align-items: center; cursor: zoom-out; }
+        #modal img { max-width: 90%; max-height: 80vh; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr 1fr; gap: 12px; } .img-box { height: 160px; } h1 { font-size: 1.4rem; } }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>CURATED STOCK</h1>
+    <div style="width:30px; height:2px; background:var(--accent); margin:15px auto;"></div>
+</header>
+
+<div class="filter-container" id="filter-box"></div>
+<div class="grid" id="main-grid">讀取中...</div>
+<div id="modal" onclick="this.style.display='none'"><img id="modalImg" src=""></div>
+
+<script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXKTmwIFtgknvKwknIWLbaEeRZUNG7_Qz8CHIz19zunRM_BqVKS5K31vowb2wOEjuwCWk57rIcBn-P/pub?output=csv';
+
+    async function loadData() {
+        try {
+            const resp = await fetch(csvUrl + '&t=' + Date.now());
+            const text = await resp.text();
+            const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
+            
+            if (rows.length <= 1) {
+                document.getElementById('main-grid').innerHTML = "目前表格沒有資料，請在 Google 表格第二列填入商品。";
+                return;
+            }
+
+            const items = rows.slice(1).map(r => {
+                const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                return {
+                    name: c[0]?.replace(/"/g, ''),
+                    cat: c[1]?.replace(/"/g, '') || '未分類',
+                    price: c[2]?.replace(/"/g, ''),
+                    stock: parseInt(c[3]) || 0,
+                    img: c[4]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300'
+                };
+            }).filter(i => i.name);
+
+            window.itemsData = items;
+            render('全部');
+            makeFilters();
+        } catch (e) {
+            document.getElementById('main-grid').innerHTML = "讀取失敗，請確認表格已『發布到網路』並選擇『CSV』。";
+        }
+    }
+
+    function render(f) {
+        const grid = document.getElementById('main-grid');
+        grid.innerHTML = '';
+        const list = f === '全部' ? itemsData : itemsData.filter(i => i.cat === f);
+        list.forEach(i => {
+            grid.innerHTML += `
+                <div class="card">
+                    <div class="img-box" onclick="zoom('${i.img}')"><img src="${i.img}"></div>
+                    <div class="info">
+                        <div style="font-size:0.7rem; color:var(--accent);">${i.cat}</div>
+                        <div class="name">${i.name}</div>
+                        <div class="price">NT$ ${i.price}</div>
+                        <div class="stock ${i.stock <= 0 ? 'out' : ''}">${i.stock > 0 ? '現貨：' + i.stock : '已售罄'}</div>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function makeFilters() {
+        const cats = ['全部', ...new Set(itemsData.map(i => i.cat))];
+        const box = document.getElementById('filter-box');
+        box.innerHTML = '';
+        cats.forEach(c => {
+            const b = document.createElement('button');
+            b.className = 'filter-btn';
+            b.innerText = c;
+            b.onclick = (e) => {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                render(c);
+            };
+            box.appendChild(b);
+        });
+        box.firstChild.classList.add('active');
+    }
+
+    function zoom(s) {
+        document.getElementById('modalImg').src = s;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    loadData();
+</script>
+</body>
+</html>
