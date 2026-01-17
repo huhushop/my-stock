@@ -4,65 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Siren Project｜現貨目錄</title>
-   <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Kosugi+Maru&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #fdfaf5; --text: #5d5245; --accent: #d4a373; --white: #ffffff; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        :root { 
+            --bg: #fffaf2;       /* 溫暖奶油白 */
+            --text: #6b5446;     /* 巧克力深棕 */
+            --accent: #ffb7b2;   /* 蜜桃粉 */
+            --card-bg: #ffffff;
+            --btn-green: #a8d5ba; /* 薄荷綠 */
+        }
+        
+        body { 
+            font-family: 'Zen Maru Gothic', 'Kosugi Maru', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding-bottom: 50px; 
+        }
         
         header { padding: 60px 20px 30px; text-align: center; }
-        /* 1. 這裡改標題字體與大小 */
-        h1 { font-family: 'Noto Serif TC', serif; letter-spacing: 8px; font-size: 2rem; margin: 0; color: #4a4a4a; }
         
-        .filter-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding: 10px; }
-        .filter-btn { background: white; border: 1px solid var(--accent); padding: 6px 18px; border-radius: 20px; cursor: pointer; color: var(--accent); white-space: nowrap; transition: 0.3s; }
+        /* 標題加上可愛的波浪感 */
+        h1 { 
+            font-size: 1.8rem; 
+            margin: 0; 
+            letter-spacing: 3px;
+            color: #e5989b;
+        }
+        
+        .filter-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 30px; overflow-x: auto; padding: 10px; }
+        .filter-btn { 
+            background: white; 
+            border: 2px solid var(--accent); 
+            padding: 8px 20px; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            color: var(--accent); 
+            font-weight: bold;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            transition: 0.3s;
+        }
         .filter-btn.active { background: var(--accent); color: white; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; width: 90%; max-width: 1200px; margin: 0 auto; }
-        .card { background: var(--white); border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid #eee; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        
-        .img-box { width: 100%; height: 280px; overflow: hidden; cursor: zoom-in; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .info { padding: 20px; text-align: center; }
-        .name { font-family: 'Noto Serif TC', serif; font-size: 1.1rem; font-weight: 700; margin: 8px 0; }
-        .price { color: #8b5e3c; font-size: 1.1rem; letter-spacing: 1px; }
-        
-        /* LINE 按鈕樣式 */
-        .order-btn { 
-            display: inline-block; background: #06C755; color: white; text-decoration: none; 
-            padding: 10px 20px; border-radius: 30px; margin-top: 15px; font-size: 0.9rem;
-            transition: 0.3s; font-weight: bold;
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; width: 92%; max-width: 1200px; margin: 0 auto; }
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 8px 15px rgba(107, 84, 70, 0.05); 
+            transition: 0.3s; 
+            border: 1px solid #f0e6d2; 
         }
-        .order-btn:hover { background: #05a346; }
-
-        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.98); z-index: 999; justify-content: center; align-items: center; cursor: zoom-out; }
-        #modal img { max-width: 90%; max-height: 85vh; border-radius: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .card:hover { transform: translateY(-8px); }
         
-        @media (max-width: 600px) { .grid { grid-template-columns: 1fr 1fr; gap: 12px; } .img-box { height: 180px; } h1 { font-size: 1.5rem; letter-spacing: 4px; } }
+        .img-box { width: 100%; height: 260px; overflow: hidden; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+        
+        .info { padding: 18px; text-align: center; }
+        .name { font-size: 1.1rem; font-weight: 700; margin: 10px 0; color: #5d473a; }
+        .price { color: #d4a373; font-size: 1.2rem; font-weight: bold; }
+        
+        /* LINE 按鈕改為可愛的綠色 */
+        .order-btn { 
+            display: inline-block; 
+            background: var(--btn-green); 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 25px; 
+            border-radius: 50px; 
+            margin-top: 15px; 
+            font-size: 0.9rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #89b398;
+            transition: 0.2s;
+        }
+        .order-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255, 250, 242, 0.95); z-index: 999; justify-content: center; align-items: center; cursor: zoom-out; }
+        #modal img { max-width: 85%; max-height: 80vh; border-radius: 15px; border: 5px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr 1fr; gap: 15px; } .img-box { height: 180px; } h1 { font-size: 1.4rem; } }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>HuHuShop IP類現貨</h1>
-    <div style="width:40px; height:1px; background:var(--accent); margin:20px auto;"></div>
+    <h1>呼來選品 HuHuShop IP類清單</h1>
+    <p id="status" style="font-size: 0.8rem; color: #d4a373; margin-top: 10px; font-weight: bold;">🥕 ゆるふわ更新中...</p>
 </header>
 
 <div class="filter-container" id="filter-box"></div>
-<div class="grid" id="main-grid">讀取中...</div>
+<div class="grid" id="main-grid"></div>
 <div id="modal" onclick="this.style.display='none'"><img id="modalImg" src=""></div>
 
 <script>
-    // 你的 CSV 連結
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXKTmwIFtgknvKwknIWLbaEeRZUNG7_Qz8CHIz19zunRM_BqVKS5K31vowb2wOEjuwCWk57rIcBn-P/pub?output=csv';
-    // 這裡填入你的 LINE 官方帳號 ID (記得要有 @)
-    const lineID = '@514pfcah'; 
+    const lineID = '514pfcah'; // 這裡填入你的 LINE ID（不含 @）
 
     async function loadData() {
         try {
-            // 加入時間戳記避免延遲
-            const resp = await fetch(csvUrl + '&t=' + Date.now());
+            // 強制刷新快取，讓 CSV 更新快一點
+            const resp = await fetch(`${csvUrl}&t=${Date.now()}`);
             const text = await resp.text();
             const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
             
@@ -73,15 +115,16 @@
                     cat: c[1]?.replace(/"/g, '') || '一般',
                     price: c[2]?.replace(/"/g, ''),
                     stock: parseInt(c[3]) || 0,
-                    img: c[4]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300'
+                    img: c[4]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300?text=No+Image'
                 };
             }).filter(i => i.name);
 
             window.itemsData = items;
+            document.getElementById('status').innerText = "● 庫存資料同步完畢！";
             render('全部');
             makeFilters();
         } catch (e) {
-            document.getElementById('main-grid').innerHTML = "連線中，請稍候...";
+            document.getElementById('status').innerText = "連線失敗，請檢查網路 🛠️";
         }
     }
 
@@ -90,19 +133,18 @@
         grid.innerHTML = '';
         const list = f === '全部' ? itemsData : itemsData.filter(i => i.cat === f);
         list.forEach(i => {
-            // 生成 LINE 預填訊息
             const lineMsg = encodeURIComponent(`你好！我想詢問商品：${i.name}`);
-            const lineLink = `https://line.me/R/oaMessage/${lineID}/?${lineMsg}`;
+            const lineLink = `https://line.me/R/oaMessage/@${lineID}/?${lineMsg}`;
 
             grid.innerHTML += `
                 <div class="card">
                     <div class="img-box" onclick="zoom('${i.img}')"><img src="${i.img}" loading="lazy"></div>
                     <div class="info">
-                        <div style="font-size:0.7rem; color:var(--accent); letter-spacing:1px;">${i.cat}</div>
+                        <div style="font-size:0.75rem; color:var(--accent); font-weight:bold;"># ${i.cat}</div>
                         <div class="name">${i.name}</div>
                         <div class="price">NT$ ${i.price}</div>
-                        <div style="font-size:0.8rem; margin:8px 0; opacity:0.6;">現貨：${i.stock}</div>
-                        <a href="${lineLink}" target="_blank" class="order-btn">💬 聯繫加單</a>
+                        <div style="font-size:0.7rem; margin-top:5px; opacity:0.7;">殘り：${i.stock}</div>
+                        <a href="${lineLink}" target="_blank" class="order-btn">我要加單 ✨</a>
                     </div>
                 </div>`;
         });
