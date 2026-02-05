@@ -12,7 +12,8 @@
             --accent: #ffb7b2;
             --card-bg: #ffffff;
             --btn-green: #a8d5ba; 
-            --sub-accent: #d4a373; /* 子分類顏色 */
+            --sub-accent: #d4a373;
+            --char-accent: #95afc0; /* 角色按鈕專用藍灰色 */
         }
         
         body { 
@@ -23,23 +24,29 @@
             padding-bottom: 50px; 
         }
         
-        header { padding: 40px 20px 20px; text-align: center; }
+        header { padding: 40px 20px 10px; text-align: center; }
         h1 { font-size: 1.8rem; margin: 0; letter-spacing: 3px; color: #e5989b; }
         
-        /* 分類容器調整 */
-        .filter-section { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 30px; }
-        .filter-container { display: flex; justify-content: center; gap: 10px; overflow-x: auto; padding: 5px 10px; width: 95%; scrollbar-width: none; }
+        .filter-section { width: 95%; max-width: 1200px; margin: 20px auto; display: flex; flex-direction: column; gap: 15px; }
+        .filter-group { background: rgba(255,255,255,0.4); padding: 12px; border-radius: 20px; border: 1px dashed var(--accent); }
+        .filter-label { font-size: 0.75rem; font-weight: bold; margin-bottom: 8px; color: #d4a373; display: block; text-align: center; opacity: 0.8; }
+        
+        .filter-container { display: flex; justify-content: center; gap: 10px; overflow-x: auto; padding: 5px 10px; scrollbar-width: none; }
         .filter-container::-webkit-scrollbar { display: none; }
 
         .filter-btn { 
-            background: white; border: 2px solid var(--accent); padding: 6px 18px; border-radius: 25px; 
-            cursor: pointer; color: var(--accent); font-weight: bold; font-family: 'Zen Maru Gothic', sans-serif; transition: 0.3s; white-space: nowrap; font-size: 0.9rem;
+            background: white; border: 2px solid var(--accent); padding: 5px 16px; border-radius: 25px; 
+            cursor: pointer; color: var(--accent); font-weight: bold; font-family: 'Zen Maru Gothic', sans-serif; transition: 0.3s; white-space: nowrap; font-size: 0.85rem;
         }
         .filter-btn.active { background: var(--accent); color: white; }
 
-        /* 子分類按鈕專屬樣式 */
-        #sub-filter-box .filter-btn { border-color: var(--sub-accent); color: var(--sub-accent); font-size: 0.8rem; padding: 4px 14px; }
+        /* 子分類按鈕顏色 */
+        #sub-filter-box .filter-btn { border-color: var(--sub-accent); color: var(--sub-accent); }
         #sub-filter-box .filter-btn.active { background: var(--sub-accent); color: white; }
+
+        /* 角色按鈕專屬色 */
+        #char-filter-box .filter-btn { border-color: var(--char-accent); color: var(--char-accent); }
+        #char-filter-box .filter-btn.active { background: var(--char-accent); color: white; }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; width: 92%; max-width: 1200px; margin: 0 auto; }
         .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; box-shadow: 0 8px 15px rgba(107, 84, 70, 0.05); transition: 0.3s; border: 1px solid #f0e6d2; }
@@ -47,10 +54,11 @@
         .img-box { width: 100%; height: 260px; overflow: hidden; }
         .img-box img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
         .info { padding: 18px; text-align: center; }
-        .name { font-size: 1.1rem; font-weight: 700; margin: 10px 0; color: #5d473a; }
+        .name { font-size: 1.1rem; font-weight: 700; margin: 10px 0; color: #5d473a; min-height: 2.4em; display: flex; align-items: center; justify-content: center; line-height: 1.3; }
         .price { color: #d4a373; font-size: 1.2rem; font-weight: bold; }
         .order-btn { display: inline-block; background: var(--btn-green); color: white; text-decoration: none; padding: 10px 25px; border-radius: 50px; margin-top: 15px; font-size: 0.9rem; font-weight: bold; box-shadow: 0 4px 0 #89b398; transition: 0.2s; }
         .order-btn:active { transform: translateY(4px); box-shadow: none; }
+        
         #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255, 250, 242, 0.95); z-index: 999; justify-content: center; align-items: center; cursor: zoom-out; }
         #modal img { max-width: 85%; max-height: 80vh; border-radius: 15px; border: 5px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         @media (max-width: 600px) { .grid { grid-template-columns: 1fr 1fr; gap: 15px; } .img-box { height: 180px; } h1 { font-size: 1.4rem; } }
@@ -60,12 +68,20 @@
 
 <header>
     <h1>呼來選品 HuHuShop IP類庫存清單</h1>
-    <p id="status" style="font-size: 0.8rem; color: #d4a373; margin-top: 10px; font-weight: bold;">🥕 ゆるふわ更新中...</p>
+    <p id="status" style="font-size: 0.8rem; color: #d4a373; margin-top: 10px; font-weight: bold;">● 載入中...</p>
 </header>
 
 <div class="filter-section">
-    <div class="filter-container" id="filter-box"></div>
-    <div class="filter-container" id="sub-filter-box" style="display: none;"></div>
+    <div class="filter-group">
+        <span class="filter-label">🏷️ 按分類查找</span>
+        <div class="filter-container" id="filter-box"></div>
+        <div class="filter-container" id="sub-filter-box" style="display: none; margin-top: 10px;"></div>
+    </div>
+    
+    <div class="filter-group">
+        <span class="filter-label">🌟 按角色查找</span>
+        <div class="filter-container" id="char-filter-box"></div>
+    </div>
 </div>
 
 <div class="grid" id="main-grid"></div>
@@ -77,6 +93,7 @@
 
     let currentMain = '全部';
     let currentSub = '全部';
+    let currentChar = '全部';
 
     async function loadData() {
         try {
@@ -87,21 +104,22 @@
             const items = rows.slice(1).map(r => {
                 const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 const fullCat = c[1]?.replace(/"/g, '') || '一般';
-                // 這裡解析「大類/子類」
                 const catParts = fullCat.split('/');
                 return {
-                    name: c[0]?.replace(/"/g, ''),
-                    mainCat: catParts[0].trim(),
-                    subCat: catParts[1] ? catParts[1].trim() : '其他',
-                    price: c[2]?.replace(/"/g, ''),
-                    stock: parseInt(c[3]) || 0,
-                    img: c[4]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300?text=No+Image'
+                    name: c[0]?.replace(/"/g, '').trim(),
+                    mainCat: catParts[0]?.trim() || '一般',
+                    subCat: catParts[1]?.trim() || '其他',
+                    character: c[2]?.replace(/"/g, '').trim() || '不限', // C 欄是角色
+                    price: c[3]?.replace(/"/g, '').trim(),             // D 欄是價格
+                    stock: parseInt(c[4]) || 0,                       // E 欄是數量
+                    img: c[5]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300' // F 欄是圖片
                 };
             }).filter(i => i.name);
 
             window.itemsData = items;
             document.getElementById('status').innerText = "● 庫存資料同步完畢！";
             makeMainFilters();
+            makeCharFilters();
             render();
         } catch (e) {
             document.getElementById('status').innerText = "連線失敗，請檢查網路 🛠️";
@@ -109,92 +127,4 @@
     }
 
     function makeMainFilters() {
-        const mains = ['全部', ...new Set(itemsData.map(i => i.mainCat))];
-        const box = document.getElementById('filter-box');
-        box.innerHTML = '';
-        mains.forEach(m => {
-            const b = document.createElement('button');
-            b.className = `filter-btn ${currentMain === m ? 'active' : ''}`;
-            b.innerText = m;
-            b.onclick = () => {
-                currentMain = m;
-                currentSub = '全部';
-                makeMainFilters(); // 更新大類按鈕狀態
-                makeSubFilters();  // 生成子類按鈕
-                render();
-            };
-            box.appendChild(b);
-        });
-        makeSubFilters();
-    }
-
-    function makeSubFilters() {
-        const subBox = document.getElementById('sub-filter-box');
-        if (currentMain === '全部') {
-            subBox.style.display = 'none';
-            return;
-        }
-
-        const subs = ['全部', ...new Set(itemsData.filter(i => i.mainCat === currentMain).map(i => i.subCat))];
-        
-        // 如果該大類下沒有子類，就隱藏第二排
-        if (subs.length <= 1) {
-            subBox.style.display = 'none';
-            return;
-        }
-
-        subBox.style.display = 'flex';
-        subBox.innerHTML = '';
-        subs.forEach(s => {
-            const b = document.createElement('button');
-            b.className = `filter-btn ${currentSub === s ? 'active' : ''}`;
-            b.innerText = s;
-            b.onclick = () => {
-                currentSub = s;
-                makeSubFilters(); // 更新子類按鈕狀態
-                render();
-            };
-            subBox.appendChild(b);
-        });
-    }
-
-    function render() {
-        const grid = document.getElementById('main-grid');
-        grid.innerHTML = '';
-        
-        let list = itemsData;
-        if (currentMain !== '全部') {
-            list = list.filter(i => i.mainCat === currentMain);
-            if (currentSub !== '全部') {
-                list = list.filter(i => i.subCat === currentSub);
-            }
-        }
-
-        list.forEach(i => {
-            const lineMsg = encodeURIComponent(`你好！我想詢問商品：${i.name}`);
-            const lineLink = `https://line.me/R/oaMessage/@${lineID}/?${lineMsg}`;
-            const displayCat = i.mainCat + (i.subCat !== '其他' ? ` > ${i.subCat}` : '');
-
-            grid.innerHTML += `
-                <div class="card">
-                    <div class="img-box" onclick="zoom('${i.img}')"><img src="${i.img}" loading="lazy"></div>
-                    <div class="info">
-                        <div style="font-size:0.75rem; color:var(--accent); font-weight:bold;"># ${displayCat}</div>
-                        <div class="name">${i.name}</div>
-                        <div class="price">NT$ ${i.price}</div>
-                        <div style="font-size:0.7rem; margin-top:5px; opacity:0.7;">數量：${i.stock}</div>
-                        <a href="${lineLink}" target="_blank" class="order-btn">我要加單 ✨</a>
-                    </div>
-                </div>`;
-        });
-    }
-
-    function zoom(s) {
-        document.getElementById('modalImg').src = s;
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    loadData();
-</script>
-</body>
-</html>
+        const mains = ['全部', ...new Set(itemsData.map(i => i
